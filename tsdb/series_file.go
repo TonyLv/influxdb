@@ -14,6 +14,7 @@ import (
 	"github.com/influxdata/influxdb/logger"
 	"github.com/influxdata/influxdb/models"
 	"github.com/influxdata/influxdb/pkg/binaryutil"
+	"github.com/influxdata/influxdb/pkg/lifecycle"
 	"github.com/influxdata/influxdb/pkg/rhh"
 	"github.com/prometheus/client_golang/prometheus"
 	"go.uber.org/zap"
@@ -45,7 +46,9 @@ type SeriesFile struct {
 	defaultMetricLabels prometheus.Labels
 	metricsEnabled      bool
 
-	refs sync.RWMutex // RWMutex to track references to the SeriesFile that are in use.
+	// res keeps track of outstanding references to the series file.
+	resmu sync.Mutex
+	res   lifecycle.Resource
 
 	Logger *zap.Logger
 }
@@ -81,12 +84,15 @@ func (f *SeriesFile) DisableMetrics() {
 
 // Open memory maps the data file at the file's path.
 func (f *SeriesFile) Open() error {
+	f.resmu.Lock()
+	defer f.resmu.Unlock()
+
+	if f.res.Opened() {
+		return errors.New("series file already opened")
+	}
+
 	_, logEnd := logger.NewOperation(f.Logger, "Opening Series File", "series_file_open", zap.String("path", f.path))
 	defer logEnd()
-
-	// Wait for all references to be released and prevent new ones from being acquired.
-	f.refs.Lock()
-	defer f.refs.Unlock()
 
 	// Create path if it doesn't exist.
 	if err := os.MkdirAll(filepath.Join(f.path), 0777); err != nil {
@@ -140,14 +146,16 @@ func (f *SeriesFile) Open() error {
 		f.partitions = append(f.partitions, p)
 	}
 
+	// The resource is now open.
+	f.res.Open()
+
 	return nil
 }
 
 // Close unmaps the data file.
 func (f *SeriesFile) Close() (err error) {
-	// Wait for all references to be released and prevent new ones from being acquired.
-	f.refs.Lock()
-	defer f.refs.Unlock()
+	// Close the resource and wait for any outstanding references.
+	f.res.Close()
 
 	for _, p := range f.partitions {
 		if e := p.Close(); e != nil && err == nil {
@@ -169,15 +177,10 @@ func (f *SeriesFile) SeriesPartitionPath(i int) string {
 // Partitions returns all partitions.
 func (f *SeriesFile) Partitions() []*SeriesPartition { return f.partitions }
 
-// Retain adds a reference count to the file.  It returns a release func.
-func (f *SeriesFile) Retain() func() {
-	if f != nil {
-		f.refs.RLock()
-
-		// Return the RUnlock func as the release func to be called when done.
-		return f.refs.RUnlock
-	}
-	return nop
+// Acquire ensures that the series file won't be closed until after the reference
+// has been released.
+func (f *SeriesFile) Acquire() (*lifecycle.Reference, error) {
+	return f.res.Acquire()
 }
 
 // EnableCompactions allows compactions to run.
@@ -192,12 +195,6 @@ func (f *SeriesFile) DisableCompactions() {
 	for _, p := range f.partitions {
 		p.DisableCompactions()
 	}
-}
-
-// Wait waits for all Retains to be released.
-func (f *SeriesFile) Wait() {
-	f.refs.Lock()
-	defer f.refs.Unlock()
 }
 
 // CreateSeriesListIfNotExists creates a list of series in bulk if they don't exist. It overwrites
@@ -575,5 +572,3 @@ func SeriesKeySize(name []byte, tags models.Tags) int {
 	n += binaryutil.UvarintSize(uint64(n))
 	return n
 }
-
-func nop() {}
