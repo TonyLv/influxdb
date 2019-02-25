@@ -123,7 +123,6 @@ Cypress.Commands.add('setupUser', setupUser)
 
 // dashboards
 Cypress.Commands.add('createDashboard', createDashboard)
-
 // orgs
 Cypress.Commands.add('createOrg', createOrg)
 

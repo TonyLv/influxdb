@@ -88,4 +88,132 @@ describe('Dashboards', () => {
 
     cy.getByTestID('resource-card').should('contain', newName)
   })
+
+  describe('labeling', () => {
+    it('can edit dashboard resource labels', () => {
+      cy.createDashboard(orgID)
+
+      cy.visit('/dashboards')
+
+      cy.get('.index-list--row')
+        .first()
+        .get('.label--edit-button button')
+        .first()
+        .click()
+
+      cy.get('.label-selector--input').should('be.visible')
+    })
+
+    const createDashboardAndEditLabel = (
+      dashName: string,
+      newLabelName: string
+    ) => {
+      return cy.createDashboard(orgID).then(({body}) => {
+        cy.visit(`/dashboards`)
+
+        const newDash = cy
+          .getByDataTest(`dashboard-index--row ${body.id}`)
+          .first()
+
+        newDash
+          .get('.index-list--row .editable-name--toggle')
+          .first()
+          .click()
+        newDash
+          .get('.editable-name--input .input-field')
+          .type(dashName)
+          .type('{enter}')
+
+        newDash
+          .get('.label--edit-button button')
+          .first()
+          .click()
+
+        cy.get('.label-selector--input .input-field')
+          .first()
+          .click()
+          .type(newLabelName)
+
+        cy.get('.resource-label--create-button').click()
+      })
+    }
+
+    it('can create a dashboard resource label', () => {
+      cy.visit(`/dashboards`)
+
+      const dashName = 'Foo'
+      const newLabelName = 'robits'
+
+      createDashboardAndEditLabel(dashName, newLabelName).then(() => {
+        cy.get('.label-selector--selected .label')
+          .first()
+          .should('contain', newLabelName)
+
+        cy.get('.resource-labels--save-edits')
+          .first()
+          .click()
+
+        const labelPills = cy
+          .get('.index-list--row')
+          .first()
+          .get('.index-list--labels .label')
+
+        labelPills.should('contain', newLabelName)
+      })
+    })
+
+    it('can filter by a clicked label', () => {
+      const newLabelName = 'click-me'
+
+      cy.createDashboard(orgID)
+      cy.createDashboard(orgID)
+
+      createDashboardAndEditLabel('Foo', newLabelName)
+      cy.get('.resource-labels--save-edits')
+        .first()
+        .click()
+
+      cy.get('.index-list--row')
+        .its('length')
+        .should('eq', 3)
+
+      cy.getByDataTest(`label--pill ${newLabelName}`)
+        .first()
+        .click()
+      cy.getByDataTest(`search-widget ${newLabelName}`)
+        .first()
+        .should('have.value', newLabelName)
+
+      cy.get('.index-list--row')
+        .its('length')
+        .should('eq', 1)
+    })
+
+    it('can filter labels in search widget', () => {
+      const newLabelName = 'click-me'
+
+      cy.createDashboard(orgID)
+      cy.createDashboard(orgID)
+
+      createDashboardAndEditLabel('Foo', newLabelName)
+      cy.get('.resource-labels--save-edits')
+        .first()
+        .click()
+
+      cy.get('.index-list--row')
+        .its('length')
+        .should('eq', 3)
+
+      cy.getByDataTest(`search-widget `).type(newLabelName)
+
+      cy.get('.index-list--row')
+        .its('length')
+        .should('eq', 1)
+
+      cy.get('.index-list--row')
+        .first()
+        .get('.index-list--labels .label')
+        .should('contain', newLabelName)
+    })
+  })
 })

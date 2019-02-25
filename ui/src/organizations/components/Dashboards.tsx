@@ -118,6 +118,7 @@ class Dashboards extends PureComponent<Props, State> {
             onChange={this.handleFilterChange}
             onBlur={this.handleFilterBlur}
             testID={`dashboards--filter-field ${searchTerm}`}
+            customClass="filter-dashboards"
           />
           <Button
             color={ComponentColor.Primary}
