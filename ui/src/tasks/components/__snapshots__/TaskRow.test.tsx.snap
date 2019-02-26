@@ -8,7 +8,7 @@ exports[`Tasks.Components.TaskRow renders 1`] = `
   <IndexListRowCell
     alignment="left"
     revealOnHover={false}
-    testID="table-cell"
+    testID="task--resource-cell 02ef9deff2141000"
   >
     <Component
       align="right"

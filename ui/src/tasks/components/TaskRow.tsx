@@ -45,8 +45,8 @@ export class TaskRow extends PureComponent<Props & WithRouterProps> {
     const {task, onDelete} = this.props
 
     return (
-      <IndexList.Row disabled={!this.isTaskActive} testID="task-row">
-        <IndexList.Cell>
+      <IndexList.Row disabled={!this.isTaskActive} testID={`task-row`}>
+        <IndexList.Cell testID={`task--resource-cell ${task.id}`}>
           <ComponentSpacer
             stackChildren={Stack.Columns}
             align={Alignment.Right}
@@ -187,6 +187,7 @@ export class TaskRow extends PureComponent<Props & WithRouterProps> {
         limitChildCount={4}
         resourceName="this Task"
         onEdit={this.handleEditLabels}
+        className="index-list--labels"
       >
         {task.labels.map(label => (
           <Label

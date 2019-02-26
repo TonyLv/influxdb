@@ -1,5 +1,7 @@
 import {Organization} from '@influxdata/influx'
 
+import {shouldEditLabels} from './shared/labels'
+
 describe('Tasks', () => {
   beforeEach(() => {
     cy.flush()
@@ -68,5 +70,14 @@ describe('Tasks', () => {
     cy.contains('Save').click()
 
     cy.getByTestID('notification-error').should('exist')
+  })
+
+  describe('labeling', () => {
+    shouldEditLabels({
+      resourceName: 'task',
+      url: '/tasks',
+      createResource: id => cy.createTask(id),
+      rowDataTest: 'task--resource-cell',
+    })
   })
 })
