@@ -39,7 +39,7 @@ export default class DashboardCard extends PureComponent<Props> {
             name={dashboard.name}
             hrefValue={`/dashboards/${dashboard.id}`}
             noNameString={DEFAULT_DASHBOARD_NAME}
-            parentTestID={`dashboard-card--name ${dashboard.id}`}
+            parentTestID={`dashboard-card--name`}
             buttonTestID="dashboard-card--name-button"
             inputTestID="dashboard-card--input"
           />
@@ -117,6 +117,7 @@ export default class DashboardCard extends PureComponent<Props> {
           limitChildCount={4}
           onEdit={this.handleEditLabels}
           resourceName="this Dashboard"
+          testID={`dashboard-labels ${dashboard.id}`}
         />
       )
     }
@@ -126,6 +127,7 @@ export default class DashboardCard extends PureComponent<Props> {
         limitChildCount={8}
         onEdit={this.handleEditLabels}
         resourceName="this Dashboard"
+        testID={`dashboard-labels ${dashboard.id}`}
       >
         {dashboard.labels.map((label, index) => (
           <Label
@@ -141,9 +143,8 @@ export default class DashboardCard extends PureComponent<Props> {
     )
   }
 
-  private handleLabelClick =  (id: string) => {
-    const label = this.props.dashboard.labels.find(l => l.id === id) 
-
+  private handleLabelClick = (id: string) => {
+    const label = this.props.dashboard.labels.find(l => l.id === id)
 
     this.props.onFilterChange(label.name)
   }

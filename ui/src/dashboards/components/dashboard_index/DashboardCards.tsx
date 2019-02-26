@@ -30,7 +30,7 @@ export default class DashboardCards extends PureComponent<Props> {
       onEditLabels,
       orgs,
       showOwnerColumn,
-      onFilterChange
+      onFilterChange,
     } = this.props
 
     return dashboards.map(d => (

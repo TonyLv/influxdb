@@ -8,7 +8,7 @@ exports[`Tasks.Components.TaskRow renders 1`] = `
   <IndexListRowCell
     alignment="left"
     revealOnHover={false}
-    testID="task--resource-cell 02ef9deff2141000"
+    testID="table-cell"
   >
     <Component
       align="right"
@@ -26,6 +26,7 @@ exports[`Tasks.Components.TaskRow renders 1`] = `
         limitChildCount={4}
         onEdit={[Function]}
         resourceName="this resource"
+        testID="labels-con"
       />
     </Component>
   </IndexListRowCell>

@@ -96,7 +96,8 @@ describe('Dashboards', () => {
       resourceName: 'dashboard',
       url: '/dashboards',
       createResource: id => cy.createDashboard(id),
-      rowDataTest: `dashboard-index--row`,
+      rowTestID: 'resource-card',
+      labelsTestID: id => `dashboard-labels ${id}`,
     })
   })
 })

@@ -3,12 +3,14 @@ import {Organization} from '@influxdata/influx'
 export const shouldEditLabels = <T>({
   resourceName,
   url,
-  rowDataTest,
+  rowTestID,
+  labelsTestID,
   createResource,
 }: {
   resourceName: string
   url: string
-  rowDataTest: string
+  rowTestID: string
+  labelsTestID: (id?: string) => string
   createResource: (id?: string) => Cypress.Chainable<Cypress.Response>
 }) => {
   it(`can edit ${resourceName} labels`, () => {
@@ -18,7 +20,7 @@ export const shouldEditLabels = <T>({
 
     cy.visit(url)
 
-    cy.get('.index-list--row')
+    cy.getByTestID(rowTestID)
       .first()
       .get('.label--edit-button button')
       .first()
@@ -34,7 +36,7 @@ export const shouldEditLabels = <T>({
     return createResource(orgID).then(({body}) => {
       cy.visit(url)
 
-      const newResource = cy.getByDataTest(`${rowDataTest} ${body.id}`).first()
+      const newResource = cy.getByTestID(labelsTestID(body.id)).first()
 
       newResource
         .get('.label--edit-button button')
@@ -66,9 +68,9 @@ export const shouldEditLabels = <T>({
           .click()
 
         const labelPills = cy
-          .get('.index-list--row')
+          .getByTestID(rowTestID)
           .first()
-          .get('.index-list--labels .label')
+          .get('.label')
 
         labelPills.should('contain', newLabelName)
       })
@@ -88,16 +90,16 @@ export const shouldEditLabels = <T>({
       .first()
       .click()
 
-    cy.get('.index-list--row').should('have.length', 3)
+    cy.getByTestID(rowTestID).should('have.length', 3)
 
-    cy.getByDataTest(`label--pill ${newLabelName}`)
+    cy.getByTestID(`label--pill ${newLabelName}`)
       .first()
       .click()
-    cy.getByDataTest(`search-widget ${newLabelName}`)
+    cy.getByTestID(`search-widget ${newLabelName}`)
       .first()
       .should('have.value', newLabelName)
 
-    cy.get('.index-list--row').should('have.length', 1)
+    cy.getByTestID(rowTestID).should('have.length', 1)
   })
 
   it(`can filter ${resourceName} by labels in search widget`, () => {
@@ -113,15 +115,15 @@ export const shouldEditLabels = <T>({
       .first()
       .click()
 
-    cy.get('.index-list--row').should('have.length', 3)
+    cy.getByTestID(rowTestID).should('have.length', 3)
 
-    cy.getByDataTest(`search-widget `).type(newLabelName)
+    cy.getByTestID(`search-widget `).type(newLabelName)
 
-    cy.get('.index-list--row').should('have.length', 1)
+    cy.getByTestID(rowTestID).should('have.length', 1)
 
-    cy.get('.index-list--row')
+    cy.getByTestID(rowTestID)
       .first()
-      .get('.index-list--labels .label')
+      .get('.label')
       .should('contain', newLabelName)
   })
 }

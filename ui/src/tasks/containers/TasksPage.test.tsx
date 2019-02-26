@@ -38,50 +38,6 @@ describe('TasksPage', () => {
     expect(getAllByTestId('task-row')).toHaveLength(tasks.length)
   })
 
-  describe('label click', () => {
-    const labelName = 'clickMe'
-    const taskOne = {
-      ...tasks[0],
-      labels: [
-        {
-          id: '123',
-          name: labelName,
-          properties: {
-            color: '#FFAA99',
-            description: '',
-          },
-        },
-      ],
-    }
-    const filterTasks = [taskOne, tasks[1]]
-
-    it('filters when label is clicked', () => {
-      const {getAllByTestId, getByText} = setup({tasks: filterTasks})
-
-      expect(getAllByTestId('task-row')).toHaveLength(2)
-
-      fireEvent.click(getByText(labelName))
-
-      expect(getAllByTestId('task-row')).toHaveLength(1)
-    })
-
-    it('displays label name in input when clicked', () => {
-      const {getAllByTestId, getByText, getByTestId} = setup({
-        tasks: filterTasks,
-      })
-
-      expect(getAllByTestId('task-row')).toHaveLength(2)
-
-      const labelPill = getByText(labelName)
-      fireEvent.click(labelPill)
-
-      const input = getByTestId(
-        `search-widget ${labelName}`
-      ) as HTMLInputElement
-      expect(input.value).toEqual(labelName)
-    })
-  })
-
   describe('active filtering', () => {
     const inactiveTask = {
       ...tasks[0],
@@ -96,6 +52,7 @@ describe('TasksPage', () => {
       orgID: '1',
     }
 
+    // Todo translate to e2e
     it('resets searchTerm and active task filtering', () => {
       const {getAllByTestId} = setup({
         dropdownOrgID: '1',
@@ -121,6 +78,7 @@ describe('TasksPage', () => {
       expect(getAllByTestId('task-row')).toHaveLength(1)
     })
 
+    // Todo translate to e2e
     it('filters active on active and searchTerm', () => {
       const labelName = 'clickMe'
 

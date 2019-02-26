@@ -74,7 +74,6 @@ describe('Dashboards', () => {
 
     fireEvent.click(labelPill)
 
-    expect(getAllByTestId(`dashboard-card--name ${dashTwo.id}`)).toHaveLength(1)
     expect(getAllByTestId('resource-card')).toHaveLength(1)
   })
 

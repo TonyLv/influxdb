@@ -77,7 +77,8 @@ describe('Tasks', () => {
       resourceName: 'task',
       url: '/tasks',
       createResource: id => cy.createTask(id),
-      rowDataTest: 'task--resource-cell',
+      rowTestID: 'task-row',
+      labelsTestID: id => `task-labels ${id}`,
     })
   })
 })
