@@ -188,7 +188,6 @@ export class TaskRow extends PureComponent<Props & WithRouterProps> {
         resourceName="this Task"
         onEdit={this.handleEditLabels}
         className="index-list--labels"
-        testID={`task-labels ${task.id}`}
       >
         {task.labels.map(label => (
           <Label

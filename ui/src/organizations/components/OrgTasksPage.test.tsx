@@ -100,9 +100,7 @@ describe('OrgsTasksPage', () => {
       const labelPill = getByTestId(`label--pill ${labelName}`)
       fireEvent.click(labelPill)
 
-      const input = getByTestId(
-        `search-widget ${labelName}`
-      ) as HTMLInputElement
+      const input = getByTestId(`search-widget`) as HTMLInputElement
       expect(input.value).toEqual(labelName)
     })
   })

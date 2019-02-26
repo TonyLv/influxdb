@@ -1,7 +1,5 @@
 import {Organization} from '@influxdata/influx'
 
-import {shouldEditLabels} from './shared/labels'
-
 describe('Tasks', () => {
   beforeEach(() => {
     cy.flush()
@@ -73,12 +71,42 @@ describe('Tasks', () => {
   })
 
   describe('labeling', () => {
-    shouldEditLabels({
-      resourceName: 'task',
-      url: '/tasks',
-      createResource: id => cy.createTask(id),
-      rowTestID: 'task-row',
-      labelsTestID: id => `task-labels ${id}`,
+    it.only('can click to filter tasks by labels', () => {
+      const newLabelName = 'click-me'
+
+      cy.get<Organization>('@org').then(({id}) => {
+        cy.createTask(id).then(({body}) => {
+          cy.createLabel('tasks', body.id, newLabelName)
+        })
+
+        cy.createTask(id).then(({body}) => {
+          cy.createLabel('tasks', body.id, 'bar')
+        })
+      })
+
+      cy.visit('/tasks')
+
+      cy.getByTestID('task-row').should('have.length', 2)
+
+      cy.getByTestID(`label--pill ${newLabelName}`).click()
+
+      cy.getByTestID('task-row').should('have.length', 1)
+    })
+  })
+
+  describe('searching', () => {
+    it('can search by task name', () => {
+      const searchName = 'beepBoop'
+      cy.get<Organization>('@org').then(({id}) => {
+        cy.createTask(id, searchName)
+        cy.createTask(id)
+      })
+
+      cy.visit('/tasks')
+
+      cy.getByTestID('search-widget').type('bEE')
+
+      cy.getByTestID('task-row').should('have.length', 1)
     })
   })
 })

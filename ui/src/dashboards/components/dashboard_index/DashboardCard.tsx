@@ -117,7 +117,6 @@ export default class DashboardCard extends PureComponent<Props> {
           limitChildCount={4}
           onEdit={this.handleEditLabels}
           resourceName="this Dashboard"
-          testID={`dashboard-labels ${dashboard.id}`}
         />
       )
     }
@@ -127,7 +126,6 @@ export default class DashboardCard extends PureComponent<Props> {
         limitChildCount={8}
         onEdit={this.handleEditLabels}
         resourceName="this Dashboard"
-        testID={`dashboard-labels ${dashboard.id}`}
       >
         {dashboard.labels.map((label, index) => (
           <Label
